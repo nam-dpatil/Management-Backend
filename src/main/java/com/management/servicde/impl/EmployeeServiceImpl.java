@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
@@ -16,7 +18,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee findById(int id) {
         return employeeRepository.findById(id)
-                .orElseThrow(EmployeesDataNotPresentException::new);
+                .orElseThrow(() -> new EmployeeNotFoundException("employee is not exist's by this name or id"));
     }
 
     @Override
@@ -45,6 +47,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void deleteEmployeeById(int id) {
         if(employeeRepository.findById(id).isPresent()) {
             employeeRepository.deleteById(id);
+            return;
         }
         throw new EmployeeNotFoundException("employee is not exist's by this name or id");
     }
@@ -54,19 +57,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         if(!employeeRepository.existsById(id)){
             throw new EmployeeNotFoundException("Employee is not found by id");
         }
-//        Employee employee1 = employeeRepository.findById(id).get();
-//        if(!employee1.getName().equals(employee.getName()))
-//            employee1.setName(employee.getName());
-//        if(!employee1.getEmail().equals(employee.getEmail()))
-//            employee1.setEmail(employee.getEmail());
-//        if(employee1.getSalary() != employee.getSalary())
-//            employee1.setSalary(employee.getSalary());
-//        if(!employee1.getDate().equals(employee.getDate()))
-//            employee1.setDate(employee.getDate());
-//        if(!employee1.getTitle().equals(employee.getTitle()))
-//            employee1.setDate(employee.getDate());
-//        if(employee1.isPayment().)
-
-        return employeeRepository.save(employee);
+        Employee employee1 = employeeRepository.findById(id).get();
+        employee1.setId(id);
+        if(!employee1.getName().equals(employee.getName()) && employee.getName() != null)
+            employee1.setName(employee.getName());
+        if(!employee1.getEmail().equals(employee.getEmail()) && employee.getName() != null)
+            employee1.setEmail(employee.getEmail());
+        if(employee1.getSalary() != employee.getSalary())
+            employee1.setSalary(employee.getSalary());
+        if(!employee1.getHireDate().equals(employee.getHireDate()) && employee.getName() != null)
+            employee1.setHireDate(employee.getHireDate());
+        if(!employee1.getTitle().equals(employee.getTitle()) && employee.getName() != null)
+            employee1.setTitle(employee.getTitle());
+        if(employee1.isPayment() != employee.isPayment()){
+            employee1.setPayment(employee.isPayment());
+        }
+        return employeeRepository.save(employee1);
     }
 }
